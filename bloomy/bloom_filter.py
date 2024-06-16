@@ -10,6 +10,8 @@ from .operation.list import ListOperation, ListResult
 from .operation.drop import DropOperation, DropResult
 from .operation.info import InfoOperation, InfoResult
 from .operation.flush import FlushOperation, FlushResult
+from .operation.set_ import SetOperation, SetResult
+from .operation.check import CheckOperation, CheckResult
 
 
 @dataclass
@@ -198,6 +200,56 @@ class BloomFilter:
         match result:
             case "Done":
                 return FlushResult(status="DONE", extra="")
+            case "Filter does not exist":
+                raise FilterNotFoundError(f"The filter '{filter_name}' does not exist")
+            case _:
+                raise ValueError(f"Invalid response: {result}")
+
+    def set(self, filter_name: str, key: str) -> SetResult:
+        """
+        Sets a key in the bloom filter.
+
+        :param filter_name: The name of the bloom filter.
+        :param key: The key to set in the bloom filter.
+
+        :return: SetResult: The result of the operation.
+            - result: The result of the operation.
+        """
+
+        operation = SetOperation(filter_name=filter_name, value=key)
+
+        result = self.__tcp_comm(operation)
+
+        match result:
+            case "Yes":
+                return SetResult(status="YES")
+            case "No":
+                return SetResult(status="NO")
+            case "Filter does not exist":
+                raise FilterNotFoundError(f"The filter '{filter_name}' does not exist")
+            case _:
+                raise ValueError(f"Invalid response: {result}")
+
+    def check(self, filter_name: str, key: str) -> CheckResult:
+        """
+        Checks if a key is in the bloom filter.
+
+        :param filter_name: The name of the bloom filter.
+        :param key: The key to check in the bloom filter.
+
+        :return: CheckResult: The result of the operation.
+            - result: The result of the operation.
+        """
+
+        operation = CheckOperation(filter_name=filter_name, value=key)
+
+        result = self.__tcp_comm(operation)
+
+        match result:
+            case "Yes":
+                return CheckResult(status="YES")
+            case "No":
+                return CheckResult(status="NO")
             case "Filter does not exist":
                 raise FilterNotFoundError(f"The filter '{filter_name}' does not exist")
             case _:
