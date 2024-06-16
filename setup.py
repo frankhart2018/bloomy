@@ -24,8 +24,8 @@ def get_version(rel_path):
 
 
 setup(
-    name="bloomy",
-    version=get_version("bloomy/__init__.py"),
+    name="ploomy",
+    version=get_version("ploomy/__init__.py"),
     packages=[package for package in find_packages()],
     install_required=["pydantic"],
     long_description=README,
